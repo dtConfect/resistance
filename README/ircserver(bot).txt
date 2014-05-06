@@ -1,0 +1,75 @@
+========================
+ server.py
+========================
+IRC bot which acts s the server, taking commands to run competitions between users on the IRC, presiding over these competitions, etc.
+
+------------------------
+ Environment (instructions based on Windows setup):
+------------------------
+server.py requires the gevent package.
+	This can be obtained from:
+
+		<https://pypi.python.org/pypi/gevent#downloads>
+		(<https://pypi.python.org/packages/source/g/gevent/gevent-1.0.tar.gz#md5=33aef51a06268f5903fea378e1388e4d>)
+
+	And installed as follows:
+		1. Unpackage the files down to the directory containing "setup.py".
+		2. On commandline, navigate to this directory, and execute "python setup.py install".
+			- You may also specify a path to the python installation you wish to install for.
+		3. If you get "error: Unable to find vcvarsall.bat", see fmuecke's answer here:
+
+			<http://stackoverflow.com/questions/2817869/error-unable-to-find-vcvarsall-bat?rq=1>
+			
+			"For Windows installations:
+			 While running setup.py for package installations Python 2.7 searches for an installed Visual Studio 2008.
+			 You can trick Python to use a newer Visual Studio by setting the correct path in VS90COMNTOOLS environment variable before calling setup.py.
+			 
+			 If you have Visual Studio 2010 installed, execute:
+			 "SET VS90COMNTOOLS=%VS100COMNTOOLS%"
+			 
+			 or with Visual Studio 2012 installed (Visual Studio Version 11):
+			 "SET VS90COMNTOOLS=%VS110COMNTOOLS%"
+			 
+			 or with Visual Studio 2013 installed (Visual Studio Version 12):
+			 "SET VS90COMNTOOLS=%VS120COMNTOOLS%"
+			"
+
+
+
+server.py also requires the greenlet package.
+	This can be obtained from:
+
+		<https://pypi.python.org/pypi/greenlet>
+		(<https://pypi.python.org/packages/source/g/greenlet/greenlet-0.4.1.zip#md5=c2deda75bdda59c38cae12a77cc53adc>)
+	
+	And installed as above
+
+
+
+server.py also requires the geventric package.
+	This can be obtained from:
+
+		<https://github.com/gwik/geventirc>
+		(<https://github.com/gwik/geventirc/archive/master.zip>)
+
+	And installed as above*
+		* Installation of this package requires setuptools be installed for each version of python
+
+
+
+To install setuptools so as to install geventirc:
+	Obtain ez_setup.py from:
+
+		<https://pypi.python.org/pypi/setuptools#windows>
+		(<https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py>)
+
+	And install as follows:
+		1. Simply run ez_setup.py with the version of python you wish to install it for.
+
+
+
+------------------------
+ To run server.py
+------------------------
+server.py runs an IRC bot on the given server.
+Refer to resistance-irc-notes.txt.

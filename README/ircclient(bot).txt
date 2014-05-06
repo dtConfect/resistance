@@ -1,0 +1,54 @@
+========================
+ client.py
+========================
+IRC bot which represents a given resistance agent and will participate in any competitions that a server bot (ircserver(bot).txt) tells it to.
+
+------------------------
+ Environment (instructions based on Windows setup):
+------------------------
+client.py requires the Twisted package.
+	This can be obtained from:
+
+		<http://twistedmatrix.com/trac/wiki/Downloads>
+		
+	However, I recommend just installing it by running:
+		If setuptools* is installed:
+			1. Execute "[python_installation_directiory]\scripts\easy_install Twisted"
+
+	Twisted requires zope.interface.
+		If setuptools* is installed, zope.interface can be installed as follows:
+			1. Execute "[python_installation_directiory]\scripts\easy_install zope.interface"
+
+
+
+*To install setuptools:
+	Obtain ez_setup.py from:
+
+		<https://pypi.python.org/pypi/setuptools#windows>
+		(<https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py>)
+
+	And install as follows:
+		1. Simply run ez_setup.py with the version of python you wish to install it for.
+
+
+
+------------------------
+ To run client.py:
+------------------------
+client.py runs IRC bots for the given bots on a given server.
+Refer to resistance-irc-notes.txt.
+
+Usage at: <https://github.com/aigamedev/resistance/wiki> .
+
+However:
+"client.py [SERVER=localhost] [BOTS]" only works if [SERVER] contains "irc.", because of this:
+
+if 'irc.' in sys.argv[1]:
+
+	server = sys.argv.pop(1)
+
+I may see to improving this, as this prevents the use of IP addresses and "localhost".
+Currently defults to localhost anyhow, so [SERVER] can be omitted.
+
+[BOTS] are in the format [<BOT_MODULE>.<BOT_CLASSNAME>]. Whole modules can not be imported as they can in competition.py.
+

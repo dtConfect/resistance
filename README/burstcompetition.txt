@@ -1,0 +1,26 @@
+========================
+ burstcompetition.py
+========================
+
+Like competition.py, this script allows for the execution of an arbitrary number of games featuring a given set of agents. 
+
+Permutations and combinations of agents, seating orders, and roles explored are as comprehensive as is possible in the requested number of games, with random games repeated or dropped as necessary.
+
+------------------------
+ To run competition.py:
+------------------------
+Refer to the notes for competition.py (competition.txt).
+burstcompetition.py is operated in the same manner, except that an extra parameter, [BURSTSIZE] must be specified after [GAMES].
+
+[BURSTSIZE] is the number of games that each 'burst' lasts for.
+	- the implementation requires that the number of permutations of games per player combination must be divisible by [BURSTSIZE] with no remainder. Since scripts only currently allow for five-player games, this means that [BURSTSIZE] must be a factor of 1,200. Information about the requested game count and burst size is printed before the competition executes in order to help with this.
+	
+	Examples:
+			burstcompetition.py 1000 600 otherBots myBotDir/ myBot001, myBot002, myBot003
+			burstcompetition.py 1000 1200 myBotDir/ myBots otherBots
+			burstcompetition.py 10000 20 otherBots.otherBot001 myBotDir/ myBots.myBot001, myBot002
+			
+------------------------
+ The results:
+------------------------
+Refer to the notes for competition.py (competition.txt).

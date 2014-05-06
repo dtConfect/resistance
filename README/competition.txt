@@ -1,0 +1,92 @@
+========================
+ competition.py
+========================
+
+This script allows for the execution of an arbitrary number of games featuring a given set of agents. Permutations and combinations of agents, seating orders, and roles explored are as comprehensive as is possible in the requested number of games, with random games repeated or dropped as necessary.
+
+------------------------
+ To run competition.py:
+------------------------
+1. Navigate to the directory it lives in on command line.
+2. Execute: (Python) competition.py [GAMES] [DIRECTORIES]  [BOTS]
+	Where:
+		[GAMES]			is an integer, the number of games to be played.
+		[DIRECTORIES] 	is a list of directories within which to search for the bots listed in [BOTS]
+							- paths are in the form 'subDir/subDir/etc'
+							- paths must contain at least one '/' or '\'
+		[BOTS]			is a list of individual bots, modules, and paths:
+							- bots are in the form 'myBots.botName'
+							- modules on in the form 'myBots'
+		
+	You cannot include a bot or whole module from a subdirectory directly.
+	Instead, you must first include a path, e.g. 'myBotDir/', and the a module (file) from within.
+	
+	Examples:
+			competition.py 1000 otherBots myBotDir/ myBot001, myBot002, myBot003
+			competition.py 1000 myBotDir/ myBots otherBots
+			competition.py 10000 otherBots.otherBot001 myBotDir/ myBots.myBot001, myBot002
+	
+------------------------
+ The results:
+------------------------
+Once the requested number of games has been played, results are displayed as follows:
+
+SPIES                           (voted,         selected)
+  GrumpyBot        95.7%         30.8%           36.9%
+  RandomBot        92.5%         24.0%           37.2%
+RESISTANCE                      (vote,          select)
+  RandomBot         8.7%         50.0% 50.0%     25.5%
+  GrumpyBot         3.1%          0.0% 100.0%    44.9%
+TOTAL
+  RandomBot        42.2% (e=0.61 n=25016)
+  GrumpyBot        40.2% (e=0.61 n=24984)
+
+Under each heading every participating bot will be listed, followed by percentages pertaining
+to that bot's performance in the specified role.
+
+SPIES                           (voted,         selected)
+  Bot name			spyWins		spyVoted		spySelected
+RESISTANCE                      (vote,          select)
+  Bot name			resWins		voteRes voteSpy	selections
+TOTAL
+  Bot name			total
+  
+
+The meaning of each is as follows:
+
+SPIES
+-----
+spyWins		=		Estimate percetage of games played as a spy which this player won:
+						TotalWinsAsSpy / TotalGamesAsSpy
+						
+spyVoted	=		Estimate percentage of votes by resistance players, regarding teams
+					featuring this bot as a spy, which were positive.
+						[ see CompetitionRound.onPlayerVoted ]
+					
+spySelected	=		Estimate percentage of teams put forward by resistance players, including
+					those not approved by voting, which feature this bot as a spy.
+						[ see CompetitionRound.onPlayerSelected ]
+
+RESISTANCE
+----------
+resWins		=		Estimate percentage of games played as resistance which this player won:
+						TotalWinsAsResistance / TotalGamesAsResistance
+						
+voteRes		=		Estimate percentage of spy-free teams put forth for voting which this bot
+					voted in favour of while playing as resistance.
+						[ see CompetitionRound.onPlayerVoted ]
+						
+voteSpy		=		Estimate percentage of teams featuring spies put forth for voting, which
+					this bot voted against while playing as resistance.
+						[ see CompetitionRound.onPlayerVoted ]
+						
+selections	=		Estimate percentage of teams put forth by this player while playing as
+					resistance which did not feature any spies.
+						[ see CompetitionRound.onPlayerSelected ]
+						
+TOTAL
+-----
+total		=		Estimate percentage of all games played, as resistance or spy, which this
+					bot was on the winning side of.
+
+

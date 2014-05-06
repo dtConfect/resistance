@@ -1,0 +1,54 @@
+========================
+ Suspicion Inaccuracies
+========================
+Suspicion inaccuracies are a method proposed for assessing an agent's ability to identify friend from foe.
+Provided the observer's (agent's) suspicion of a subject (opponent) can be presented as a value between 0.0 and 1.0 -  where 0.0 represents a strong belief that the subject is a resistance member, and 1.0 represents a strong belief that the subject is a spy - inaccuracy can be calculated as follows (once real identities are known):
+	If the subject is a resistance member: inaccuracy = suspicion
+	If the subject is a spy: inaccuracy = 1.0-suspicion
+
+========================
+ Logging Suspicion Inaccuracies
+========================
+We provide a collection of classes to facilitate this in suspAcc.py
+If suspAcc.py is called from the command line, a unit test will be run to confirm serialization, and de-serialization are functioning correctly.
+
+For simply logging suspicion inaccuracies over a competition to a file (default is within the logs folder), two important classes should be noted:
+	SuspicionsAfterMissions
+	SuspicionStatsLogger
+	
+You should ensure that SuspicionStatsLogger is fed a NameMangler (burstcompetition.py) if one is available, otherwise your logging may produce unexpected results when used with burstcompetition.py. Current modded bots achieve this as follows:
+
+	nameMangler = self.game._mangler if SuspicionStatsLogger.requiresBotnameMangler() else None
+    self.suspicionLogger = SuspicionStatsLogger(self.name, mangler=nameMangler)
+	
+Note that SuspicionStatsLogger.requiresBotnameMangler is only able to recognise that this is the case by checking the first argument of the execution, which is the script called from command line) is "burstcompetition.py". This should be considered when implementing additional name-mangling competition models, or executing burstcompetition.py from another script.
+
+After creating instances of these classes in onGameRevealed, the SuspicionsAfterMissions should be updated once for every mission, usually in onMissionComplete, after any of the observer's code which affects suspicion. To do so, call the "logMission" function, supplying a dictionary of player names to suspicion scores:
+
+	currentSuspicions = self.calculateCurrentPlayerSuspicions()
+    self.suspicionsAfterMissions.logMission(currentSuspicions)
+	
+Finally, to record each game to a file, in onGameComplete, convert the SuspicionsAfterMissions to an AccuraciesAfterMissions, and call the loggers "logGame" function. You must also specify the role of the observer:
+
+	accuraciesAfterMissions = self.suspicionsAfterMissions.toAccuraciesAfterMissions(spies)
+    self.suspicionLogger.logGame(accuraciesAfterMissions, self.spy)
+
+For examples, see the modified agents in bots\1\confect-mod. Search for the "DPT - Inaccuracy Stuff" comments.
+
+========================
+ Plotting Suspicion Inaccuracies
+========================
+We also provide a module (suspAccPlotter.py) to help with graphing these inaccuracies.
+The module was designed to allow for extension to deal with various graph types, but as yet can produce only one, with limited options.
+
+suspAccPlotter requires that you have installed the following packages.
+
+	six
+	numpy
+	pyparsing
+	dateutil
+	matplotlib
+
+Unofficial Windows binaries of these packages can be obtained online, at <http://www.lfd.uci.edu/~gohlke/pythonlibs/>.
+
+supsAccPlotter uses argparse for processing options. Sufficient information about its use should be accessible through the "-h" option.
