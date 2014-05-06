@@ -100,6 +100,16 @@ class PlayerStats:
             for suceso in self.playersStats[playerName]:
                 myCopy.playersStats[playerName][suceso]=self.playersStats[playerName][suceso].copy()
         return myCopy
+    # DPT - 09-Feb-2014 - Adding copy function that only coppies what you need
+    def copyPlayers(self, players):
+        myCopy=PlayerStats()
+        for playerName in players:
+            if playerName in self.playersStats:
+                myCopy.playersStats[playerName]={}
+                for suceso in self.playersStats[playerName]:
+                    myCopy.playersStats[playerName][suceso]=self.playersStats[playerName][suceso].copy()
+        return myCopy
+    # End DPT
 
 class GameState:
     
@@ -442,8 +452,15 @@ class Magi(Bot):
         """
         self.gatheringInfo=False
         self.spies=spies
-        self.updSpyStats=self.globalSpyPlayerStats.copy()
-        self.updResistanceStats=self.globalResistancePlayerStats.copy()
+        # DPT - 09-Feb-2014 - Inefficiency code:
+        ##                  - Collections grow as Magi faces new opponents, taking longer and logner to copy
+        #self.updSpyStats=self.globalSpyPlayerStats.copy()
+        #self.updResistanceStats=self.globalResistancePlayerStats.copy()
+        # DPT - 09-Feb-2014 - Ammended to only copy players needed for this game
+        playerNamesThisGame = [p.name for p in players]
+        self.updSpyStats=self.globalSpyPlayerStats.copyPlayers(playerNamesThisGame)
+        self.updResistanceStats=self.globalResistancePlayerStats.copyPlayers(playerNamesThisGame)
+        # End DPT
         self.gameState=GameState(players)
         self.deceives=[]
         self.trusts={}
