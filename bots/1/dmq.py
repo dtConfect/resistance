@@ -971,12 +971,14 @@ class GamePhase:
 
 class Memory:
     """Or should I say BlackBoard system"""
-    _currentLeader = None
-    _currentTeam = None
-    _currentMission = None
-    _selectionCount = None
-    _votes = None
-    _lastSabotage = None
+    _currentLeader = None           # Leader for the voting or mission.
+    _currentTeam = None             # Team for the voting or mission.
+    _currentMission = None          # Mission number, 1-5 inclussive.
+    _selectionCount = None          # Last team size selected by this player,
+                                    # or team size currently being selected.
+                                    # Not used or updated by anything but selection.
+    _votes = None                   # Each player's votes prior to the mission.
+    _lastSabotage = None            # How many sabotages in the mission just passed.
 
     def __init__(self, owner, players, spies):
         self.players = players
