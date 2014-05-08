@@ -59,22 +59,32 @@ class Game:
     def __init__(self, bots, roles):
         self.state = State()        
 
+        # DPT - 29-Jan-2014 - Seperate this into a function so it's easier for subclasses:
+        self.createBots(bots, roles)
+        # End DPT   
+    
+        # Configuration for the game itself.
+        self.participants = [2, 3, 2, 3, 3]
+        self.leader = itertools.cycle(self.state.players)
+
+    # DPT - 29-Jan-2014 - Seperate this into a function so it's easier for subclasses:
+    def createBots(self, bots, roles):
         # Create Bot instances based on the constructor passed in.
         self.bots = [p(self.state, i, r) for p, r, i in zip(bots, roles, range(1, len(bots)+1))]
         
         # Maintain a copy of players that includes minimal data, for passing to other bots.
         self.state.players = [Player(p.name, p.index) for p in self.bots]
-    
-        # Configuration for the game itself.
-        self.participants = [2, 3, 2, 3, 3]
-        self.leader = itertools.cycle(self.state.players) 
+    # End DPT
 
     def run(self):
         """Main entry point for the resistance game.  Once initialized call this to 
         simulate the game until it is complete."""
-
         # Tell the bots who the spies are if they are allowed to know.
-        spies = set([Player(p.name, p.index) for p in self.bots if p.spy])
+        # DPT - 29-Jan-2014 - Copy players from our collection in case we have given them pseudonyms
+        spies = set([p for p in self.state.players if p in [b for b in self.bots if b.spy]])
+        # Original:
+        #spies = set([Player(p.name, p.index) for p in self.bots if p.spy])
+        # End DPT
         for p in self.bots:
             if p.spy:
                 p.onGameRevealed(self.state.players, spies)
@@ -139,7 +149,11 @@ class Game:
         # Make an internal callback, e.g. to track statistics about selection.
         self.onPlayerSelected(l, [b for b in self.bots if b in selected])
         # Copy the list to make sure no internal data is leaked to the other bots!
-        selected = [Player(s.name, s.index) for s in selected]
+        # DPT - 29-Jan-2014 - Copy the list from self.state.players again incase some bots return [self]
+        selected = [p for p in self.state.players if p in selected]
+        # Original: 
+        #selected = [Player(s.name, s.index) for s in selected]
+        # End DPT
         self.state.team = set(selected)
         for p in self.bots:
             p.onTeamSelected(self.state.leader, selected)

@@ -59,7 +59,11 @@ class BotPlan():
 
 class GrumpyBot(Bot):
 
-    def __init__(self, game, index, spy):
+    # DPT - 04-Feb-2014 - Add an optional name parameter to override use of the class name
+    # Useful for burstcompetition, where we must distinguish between players with the same bot.
+    # Since GrumpyBot overrides __init__, I had to make this change here as well as in the Bot class.
+    def __init__(self, game, index, spy, name = None):
+    # End DPT
         """Constructor called before a game starts.  It's recommended you don't
         override this function and instead use onGameRevealed() to perform
         setup for your AI.
@@ -67,7 +71,11 @@ class GrumpyBot(Bot):
         @param index    Your own index in the player list.
         @param spy      Are you supposed to play as a spy?
         """
-        Player.__init__(self, self.__class__.__name__, index)
+        # DPT - 04-Feb-2014 - Add an optional name parameter to override use of the class name
+        # Useful for burstcompetition, where we must distinguish between players with the same bot.
+        if name is None: name = self.__class__.__name__
+        Player.__init__(self, name, index)
+        # End DPT
         self.game = game
         self.spy = spy
 

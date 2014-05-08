@@ -24,15 +24,18 @@ class Player(object):
 
     def __repr__(self):
         return "%i-%s" % (self.index, self.name)
-
+    # DPT - 29-Jan-2014 - Compare based on only index, rather than index and name.
+    # This was we are able to compare name-mangled players to non name-mangled bots.
+    # As long as you never compare objects from different games, this should work fine:
     def __eq__(self, other):
-        return self.index == other.index and self.name == other.name
+        return self.index == other.index
 
     def __ne__(self, other):
-        return self.index != other.index or self.name != other.name
+        return self.index != other.index
 
     def __hash__(self):
-        return hash(self.index) ^ hash(self.name)
+        return hash(self.index)
+    # End DPT
 
 
 class Bot(Player):
@@ -123,11 +126,23 @@ class Bot(Player):
         """
         pass
 
+    # DPT - 04-Feb-2014 - Callback for competition end:
+    @classmethod
+    def onCompetitionEnd(cls):
+        """Callback once a program executing a series of games has completed.
+        This allows bots to throw up some useful statistics and info for debugging.
+        """
+        pass
+    # End DPT
+
     def others(self):
         """Helper function to list players in the game that are not your bot."""
         return [p for p in self.game.players if p != self]
 
-    def __init__(self, game, index, spy):
+    # DPT - 01-Feb-2014 - Add an optional name parameter to override use of the class name
+    # Useful for burstcompetition, where we must distinguish between players with the same bot.
+    def __init__(self, game, index, spy, name = None):
+    # End DPT
         """Constructor called before a game starts.  It's recommended you don't
         override this function and instead use onGameRevealed() to perform
         setup for your AI.
@@ -135,7 +150,11 @@ class Bot(Player):
         @param index    Your own index in the player list.
         @param spy      Are you supposed to play as a spy?
         """
-        Player.__init__(self, self.__class__.__name__, index)
+    # DPT - 01-Feb-2014 - Add an optional name parameter to override use of the class name
+    # Useful for burstcompetition, where we must distinguish between players with the same bot.
+        if name is None: name = self.__class__.__name__
+        Player.__init__(self, name, index)
+    # End DPT
         self.game = game
         self.spy = spy
 

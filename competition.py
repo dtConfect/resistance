@@ -99,8 +99,19 @@ class CompetitionRunner(object):
         # Make sure there are sufficient entrants if necessary.
         # WARNING: Results in multiple bot instances per game!
         self.competitors = competitors
+        # DPT - 28-Jan-2014 - Let's let the user know what they're getting:
+        if competitors and len(self.competitors) < 5:
+            if not self.quiet:
+                print("")
+                print >>sys.stderr, 'Not enough competitors for a single game.'
+                print >>sys.stderr, 'Competitors will be entered multiple times.'
+        # End DPT
         while competitors and len(self.competitors) < 5:
             self.competitors.extend(competitors)
+
+        # DPT - 04-Feb-2014 - Print extra debug information?
+        self.loud = True
+        # End DPT
 
     def listGameSelections(self):
         """Evaluate all bots in all possible permutations!  If there are more
@@ -118,6 +129,22 @@ class CompetitionRunner(object):
             random.shuffle(p)
             permutations.extend(p)
         
+        # DPT - 28-Jan-2014 - Let's let the user know what they're getting:
+        if not self.quiet:
+            compr = len(p)
+            print("")
+            print >>sys.stderr, 'Requested games: %i' % (self.rounds)
+            print >>sys.stderr, 'Comprehensive size: %i' % (compr)
+            if not (self.rounds == compr):
+                print >>sys.stderr, 'Comprehensive sets played: %f' % (self.rounds/float(compr))
+            if not ((self.rounds % compr) == 0):
+                print("")
+                print >>sys.stderr, 'Requested games is not divisible by comprehensive size.'
+                print >>sys.stderr, 'Some bots will not compete in an equal number of games.'
+        # End DPT
+        
+        print("")
+
         for players, roles in permutations[:self.rounds]:
             yield (players, roles)
 
@@ -130,8 +157,13 @@ class CompetitionRunner(object):
             if hasattr(bot, 'onCompetitionStarting'):
                 bot.onCompetitionStarting(names)
 
-        if not self.quiet:
-            print >>sys.stderr, "Running competition with %i bots." % (len(self.competitors))
+        # DPT - 29-Jan-2014 - Seperate this into a function so it's easier for subclasses:
+        self.run()
+        # End DPT
+
+    # DPT - 29-Jan-2014 - Seperate this into a function so it's easier for subclasses:
+    def run(self):
+        print >>sys.stderr, "Running competition with %i bots." % (len(self.competitors))
         for i, (players, roles) in enumerate(self.listGameSelections()):
             if not self.quiet:
                 if (i+1) % 500 == 0: print >>sys.stderr, '(%02i%%)' % (100*(i+1)/self.rounds)
@@ -140,6 +172,19 @@ class CompetitionRunner(object):
 
             self.play(CompetitionRound, players, roles)
 
+        print("")
+    # End DPT
+
+    # DPT - 04-Feb-2014 - Callback for competition end:
+    def onCompetitionEnd(self):
+        if not self.quiet and self.loud:
+            print >>sys.stderr, 'Debug upchuck for each competitor:'
+            for k in self.competitors:
+                print("")
+                print >>sys.stderr, '%s:' % (k.__name__)
+                k.onCompetitionEnd() 
+    # End DPT
+
     def play(self, GameType, players, roles = None, channel = None):
         g = GameType(players, roles)
         g.channel = channel
@@ -147,6 +192,7 @@ class CompetitionRunner(object):
         g.run()
         self.games.remove(g)
 
+        # Gather statistics for this game, for each bot involved
         for b in g.bots:
             statistics.setdefault(b.name, CompetitionStatistics())
             s = statistics.get(b.name)
@@ -203,28 +249,39 @@ class CompetitionRunner(object):
             self.echo(" ", '{0:<16s}'.format(s[0]), s[1].total().detail())
         self.echo("")
 
-
+# DPT - 2013 - Moved path append stuff into getCompetitors and expanded to
+# deal with Windows-style backslashes for folders.
 def getCompetitors(argv):
     competitors = []
     for request in argv:
-        if '.' in request:
+        if '/' in request or '\\' in request:
+            # The argument is an additional search path
+            sys.path.append(request)
+            somethingToAdd = False;
+        elif '.' in request:
+            # The argument is a bot to add as a competitor
             filename, classname = request.split('.')
+            somethingToAdd = True;
         else:
+            # The argument may be a module or directory to add competitors from
             filename, classname = request, None
+            somethingToAdd = True;
 
-        module = importlib.import_module(filename)
-        if classname:
-            competitors.append(getattr(module, classname))
-        else:
-            for b in dir(module):
-                if hasattr(module, '__all__') and not b in module.__all__: continue
-                if b.startswith('__') or b == 'Bot': continue
-                cls = getattr(module, b)
-                try:
-                    if issubclass(cls, Bot):
-                        competitors.append(cls)
-                except TypeError:
-                    pass
+        # Try to add the requested bots
+        if somethingToAdd:
+            module = importlib.import_module(filename)
+            if classname:
+                competitors.append(getattr(module, classname))
+            else:
+                for b in dir(module):
+                    if hasattr(module, '__all__') and not b in module.__all__: continue
+                    if b.startswith('__') or b == 'Bot': continue
+                    cls = getattr(module, b)
+                    try:
+                        if issubclass(cls, Bot):
+                            competitors.append(cls)
+                    except TypeError:
+                        pass
     return competitors
 
 if __name__ == '__main__':
@@ -232,9 +289,8 @@ if __name__ == '__main__':
         print('USAGE: competition.py 10000 file.BotName [...]')
         sys.exit(-1)
 
-    for arg in [a for a in sys.argv if '/' in a]:
-        sys.path.append(arg)
-        sys.argv.remove(arg)
+    # DPT - 2013 - Moved path append stuff into getCompetitors and expanded
+    # to deal with Windows-style backslashes for folers.
 
     competitors = getCompetitors(sys.argv[2:])
     runner = CompetitionRunner(competitors, int(sys.argv[1]))
@@ -244,4 +300,7 @@ if __name__ == '__main__':
         pass
     finally:
         runner.show()
+        # DPT - 04-Feb-2014 - Callback for competition end:
+        runner.onCompetitionEnd()
+        # End DPT
 
